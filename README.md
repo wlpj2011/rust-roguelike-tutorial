@@ -1,2 +1,2 @@
 # rust-roguelike-tutorial
-Following https://bfnightly.bracketproductions.com/ Roguelike tutorial in rust. Utilizing https://crates.io/crates/rltk
+Following [Roguelike tutorial in Rust](https://bfnightly.bracketproductions.com/) utilizing [RTLK](https://crates.io/crates/rltk).
