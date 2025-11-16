@@ -1,6 +1,6 @@
-use rltk::{VirtualKeyCode, Rltk};
+use super::{Player, Position, State, TileType, xy_idx};
+use rltk::{Rltk, VirtualKeyCode};
 use specs::prelude::*;
-use super::{Position, Player, TileType, xy_idx, State};
 
 pub fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) {
     let mut positions = ecs.write_storage::<Position>();
