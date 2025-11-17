@@ -16,6 +16,7 @@ pub struct Map {
     pub rooms: Vec<Rect>,
     pub width: i32,
     pub height: i32,
+    pub revealed_tiles: Vec<bool>,
 }
 
 impl Map {
@@ -58,6 +59,7 @@ impl Map {
             rooms: Vec::new(),
             width: 80,
             height: 50,
+            revealed_tiles: vec![false; 80 * 50],
         };
 
         // Make the boundaries walls
@@ -97,6 +99,7 @@ impl Map {
             rooms: Vec::new(),
             width: 80,
             height: 50,
+            revealed_tiles: vec![false; 80 * 50],
         };
 
         const MAX_ROOMS: i32 = 30;
@@ -159,9 +162,8 @@ pub fn draw_map(ecs: &World, ctx: &mut Rltk) {
     for (_player, viewshed) in (&mut players, &mut viewsheds).join() {
         let mut y = 0;
         let mut x = 0;
-        for tile in map.tiles.iter() {
-            let pt = Point::new(x, y);
-            if viewshed.visible_tiles.contains(&pt) {
+        for (idx, tile) in map.tiles.iter().enumerate() {
+            if map.revealed_tiles[idx] {
                 match tile {
                     TileType::Floor => {
                         ctx.set(
@@ -183,7 +185,6 @@ pub fn draw_map(ecs: &World, ctx: &mut Rltk) {
                     }
                 }
             }
-
             // Move the coordinates
             x += 1;
             if x > 79 {
