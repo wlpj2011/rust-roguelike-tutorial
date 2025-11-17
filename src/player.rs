@@ -1,14 +1,14 @@
-use super::{Player, Position, State, TileType, xy_idx};
+use super::{Map, Player, Position, State, TileType};
 use rltk::{Rltk, VirtualKeyCode};
 use specs::prelude::*;
 
 pub fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) {
     let mut positions = ecs.write_storage::<Position>();
     let mut players = ecs.write_storage::<Player>();
-    let map = ecs.fetch::<Vec<TileType>>();
+    let map = ecs.fetch::<Map>();
     for (pos, _player) in (&mut positions, &mut players).join() {
-        let destination_idx = xy_idx(pos.x + delta_x, pos.y + delta_y);
-        if map[destination_idx] != TileType::Wall {
+        let destination_idx = map.xy_idx(pos.x + delta_x, pos.y + delta_y);
+        if map.tiles[destination_idx] != TileType::Wall {
             pos.x = (pos.x + delta_x).clamp(0, 79);
             pos.y = (pos.y + delta_y).clamp(0, 49);
         }
