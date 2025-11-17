@@ -87,6 +87,7 @@ impl Map {
         map
     }
 
+    /// Makes a map by carving out up to MAX_ROOMS non-intersecting rooms and connecting them by corridors.
     pub fn new_map_rooms_and_corridors() -> Map {
         let mut map = Map {
             tiles: vec![TileType::Wall; 80 * 50],
