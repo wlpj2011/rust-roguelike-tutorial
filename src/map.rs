@@ -11,6 +11,7 @@ pub enum TileType {
     Floor,
 }
 
+#[derive(Default)]
 pub struct Map {
     pub tiles: Vec<TileType>,
     pub rooms: Vec<Rect>,
@@ -18,6 +19,7 @@ pub struct Map {
     pub height: i32,
     pub revealed_tiles: Vec<bool>,
     pub visible_tiles: Vec<bool>,
+    pub blocked_tiles: Vec<bool>,
 }
 
 impl Map {
@@ -30,7 +32,7 @@ impl Map {
             return false;
         }
         let idx = self.xy_idx(x, y);
-        self.tiles[idx] != TileType::Wall
+        !self.blocked_tiles[idx]
     }
 
     fn apply_room_to_map(&mut self, room: &Rect) {
@@ -60,6 +62,12 @@ impl Map {
         }
     }
 
+    pub fn populate_blocked(&mut self) {
+        for (i, tile) in self.tiles.iter_mut().enumerate() {
+            self.blocked_tiles[i] = *tile == TileType::Wall;
+        }
+    }
+
     /// Makes a map with solid boundaries and 400 randomly placed walls. No guarantees that it won't
     /// look awful.
     pub fn new_map_scatter() -> Map {
@@ -70,6 +78,7 @@ impl Map {
             height: 50,
             revealed_tiles: vec![false; 80 * 50],
             visible_tiles: vec![false; 80 * 50],
+            blocked_tiles: vec![false; 80 * 50],
         };
 
         // Make the boundaries walls
@@ -111,6 +120,7 @@ impl Map {
             height: 50,
             revealed_tiles: vec![false; 80 * 50],
             visible_tiles: vec![false; 80 * 50],
+            blocked_tiles: vec![false; 80 * 50],
         };
 
         const MAX_ROOMS: i32 = 30;

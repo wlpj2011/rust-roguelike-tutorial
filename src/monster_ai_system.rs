@@ -22,8 +22,14 @@ impl<'a> System<'a> for MonsterAI {
         for (viewshed, _monster, name, monster_pos) in
             (&mut viewshed, &monster, &name, &mut monster_pos).join()
         {
+            let distance = rltk::DistanceAlg::Pythagoras
+                .distance2d(Point::new(monster_pos.x, monster_pos.y), *player_pos);
+            if distance < 1.5 {
+                // Melee attack goes here
+                console::log(&format!("{} shouts insults", name.name));
+                return;
+            }
             if viewshed.visible_tiles.contains(&*player_pos) {
-                console::log(format!("{} shouts insults.", name.name));
                 let path = rltk::a_star_search(
                     map.xy_idx(monster_pos.x, monster_pos.y) as i32,
                     map.xy_idx(player_pos.x, player_pos.y) as i32,

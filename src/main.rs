@@ -15,6 +15,8 @@ mod visibility_system;
 pub use visibility_system::*;
 mod monster_ai_system;
 pub use monster_ai_system::*;
+mod map_indexing_system;
+pub use map_indexing_system::*;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum RunState {
@@ -33,6 +35,8 @@ impl State {
         vis.run_now(&self.ecs);
         let mut mob = MonsterAI {};
         mob.run_now(&self.ecs);
+        let mut mapindex = MapIndexingSystem {};
+        mapindex.run_now(&self.ecs);
         self.ecs.maintain();
     }
 }
@@ -78,6 +82,7 @@ fn main() -> rltk::BError {
     gs.ecs.register::<Player>();
     gs.ecs.register::<Viewshed>();
     gs.ecs.register::<Monster>();
+    gs.ecs.register::<BlocksTile>();
     gs.ecs.register::<Name>();
 
     // Insert Data
@@ -113,6 +118,7 @@ fn main() -> rltk::BError {
                 bg: RGB::named(rltk::BLACK),
             })
             .with(Monster {})
+            .with(BlocksTile {})
             .with(Name {
                 name: format!("{name} #{i}"),
             })
