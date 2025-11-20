@@ -47,7 +47,7 @@ impl GameState for State {
         } else {
             self.runstate = player_input(self, ctx);
         }
-        
+
         draw_map(&self.ecs, ctx);
 
         let positions = self.ecs.read_storage::<Position>();
@@ -108,7 +108,7 @@ fn main() -> rltk::BError {
                 y: room_center_y,
             })
             .with(Renderable {
-                glyph: glyph,
+                glyph,
                 fg: RGB::named(rltk::RED),
                 bg: RGB::named(rltk::BLACK),
             })
