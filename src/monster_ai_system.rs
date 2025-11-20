@@ -1,5 +1,5 @@
-use super::{Map, Monster, Name, Position, Viewshed};
-use rltk::{Point, console, field_of_view};
+use super::{Monster, Name, Viewshed};
+use rltk::{Point, console};
 use specs::prelude::*;
 
 pub struct MonsterAI {}
@@ -16,7 +16,7 @@ impl<'a> System<'a> for MonsterAI {
         let (player_pos, viewshed, monster, name) = data;
 
         for (viewshed, _monster, name) in (&viewshed, &monster, &name).join() {
-            if viewshed.visible_tiles.contains(&*&player_pos) {
+            if viewshed.visible_tiles.contains(&*player_pos) {
                 console::log(format!("{} shouts insults.", name.name));
             }
         }

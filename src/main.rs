@@ -1,5 +1,3 @@
-use std::fmt::format;
-
 use rltk::{GameState, RGB, RandomNumberGenerator, Rltk};
 use specs::prelude::*;
 //use std::cmp::{max, min};
@@ -49,7 +47,7 @@ impl GameState for State {
         } else {
             self.runstate = player_input(self, ctx);
         }
-        //alet map = self.ecs.fetch::<Map>();
+        
         draw_map(&self.ecs, ctx);
 
         let positions = self.ecs.read_storage::<Position>();
@@ -151,5 +149,7 @@ fn main() -> rltk::BError {
         })
         .build();
     gs.ecs.insert(rltk::Point::new(player_x, player_y));
+
+    // Run main loop
     rltk::main_loop(context, gs)
 }
