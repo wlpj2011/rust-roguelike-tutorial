@@ -84,6 +84,7 @@ fn main() -> rltk::BError {
     gs.ecs.register::<Monster>();
     gs.ecs.register::<BlocksTile>();
     gs.ecs.register::<Name>();
+    gs.ecs.register::<CombatStats>();
 
     // Insert Data
     let map = Map::new_map_rooms_and_corridors();
@@ -118,6 +119,12 @@ fn main() -> rltk::BError {
                 bg: RGB::named(rltk::BLACK),
             })
             .with(Monster {})
+            .with(CombatStats {
+                max_hp: 16,
+                hp: 16,
+                defense: 1,
+                power: 4,
+            })
             .with(BlocksTile {})
             .with(Name {
                 name: format!("{name} #{i}"),
@@ -145,6 +152,12 @@ fn main() -> rltk::BError {
             bg: RGB::named(rltk::BLACK),
         })
         .with(Player {})
+        .with(CombatStats {
+            max_hp: 30,
+            hp: 30,
+            defense: 2,
+            power: 5,
+        })
         .with(Name {
             name: "Player".to_string(),
         })

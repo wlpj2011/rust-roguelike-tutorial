@@ -174,19 +174,33 @@ impl BaseMap for Map {
         let x = idx as i32 % self.width;
         let y = idx as i32 / self.width;
         let w = self.width as usize;
+        // Cardinal directions
         if self.is_exit_valid(x - 1, y) {
-            exits.push((idx - 1, 1.0));
-        }
+            exits.push((idx - 1, 1.0))
+        };
         if self.is_exit_valid(x + 1, y) {
-            exits.push((idx + 1, 1.0));
-        }
+            exits.push((idx + 1, 1.0))
+        };
         if self.is_exit_valid(x, y - 1) {
-            exits.push((idx - w, 1.0));
-        }
-        if self.is_exit_valid(x - 1, y) {
-            exits.push((idx + w, 1.0));
-        }
+            exits.push((idx - w, 1.0))
+        };
+        if self.is_exit_valid(x, y + 1) {
+            exits.push((idx + w, 1.0))
+        };
 
+        // Diagonals
+        if self.is_exit_valid(x - 1, y - 1) {
+            exits.push(((idx - w) - 1, 1.45));
+        }
+        if self.is_exit_valid(x + 1, y - 1) {
+            exits.push(((idx - w) + 1, 1.45));
+        }
+        if self.is_exit_valid(x - 1, y + 1) {
+            exits.push(((idx + w) - 1, 1.45));
+        }
+        if self.is_exit_valid(x + 1, y + 1) {
+            exits.push(((idx + w) + 1, 1.45));
+        }
         exits
     }
 
