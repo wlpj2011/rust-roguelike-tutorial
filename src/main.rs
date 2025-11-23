@@ -21,6 +21,8 @@ mod melee_combat_system;
 pub use melee_combat_system::*;
 mod damage_system;
 pub use damage_system::*;
+mod spawner;
+pub use spawner::*;
 mod gui;
 pub use gui::*;
 mod gamelog;
@@ -102,9 +104,11 @@ impl GameState for State {
 
 fn main() -> rltk::BError {
     use rltk::RltkBuilder;
-    let context = RltkBuilder::simple80x50()
+    let mut context = RltkBuilder::simple80x50()
         .with_title("Roguelike Tutorial")
         .build()?;
+    context.with_post_scanlines(true);
+
     let mut gs = State { ecs: World::new() };
 
     // Register all components defined with the ECS
@@ -123,84 +127,16 @@ fn main() -> rltk::BError {
     let map = Map::new_map_rooms_and_corridors();
     let (player_x, player_y) = map.rooms[0].center();
 
+    gs.ecs.insert(rltk::RandomNumberGenerator::new());
     // Spawn Monsters
-    let mut rng = RandomNumberGenerator::new();
-    for (i, room) in map.rooms.iter().skip(1).enumerate() {
-        let (room_center_x, room_center_y) = room.center();
-        let glyph: rltk::FontCharType;
-        let name: String;
-        let roll = rng.roll_dice(1, 2);
-        match roll {
-            1 => {
-                glyph = rltk::to_cp437('g');
-                name = "Goblin".to_string();
-            }
-            _ => {
-                glyph = rltk::to_cp437('o');
-                name = "Orc".to_string();
-            }
-        }
-        gs.ecs
-            .create_entity()
-            .with(Position {
-                x: room_center_x,
-                y: room_center_y,
-            })
-            .with(Renderable {
-                glyph,
-                fg: RGB::named(rltk::RED),
-                bg: RGB::named(rltk::BLACK),
-            })
-            .with(Monster {})
-            .with(CombatStats {
-                max_hp: 16,
-                hp: 16,
-                defense: 1,
-                power: 4,
-            })
-            .with(BlocksTile {})
-            .with(Name {
-                name: format!("{name} #{i}"),
-            })
-            .with(Viewshed {
-                visible_tiles: Vec::new(),
-                range: 8,
-                dirty: true,
-            })
-            .build();
+    for room in map.rooms.iter().skip(1) {
+        let (x, y) = room.center();
+        spawner::random_monster(&mut gs.ecs, x, y);
     }
 
     gs.ecs.insert(map);
-
     // Add player
-    let player_entity = gs
-        .ecs
-        .create_entity()
-        .with(Position {
-            x: player_x,
-            y: player_y,
-        })
-        .with(Renderable {
-            glyph: rltk::to_cp437('@'),
-            fg: RGB::named(rltk::YELLOW),
-            bg: RGB::named(rltk::BLACK),
-        })
-        .with(Player {})
-        .with(CombatStats {
-            max_hp: 30,
-            hp: 30,
-            defense: 2,
-            power: 5,
-        })
-        .with(Name {
-            name: "Player".to_string(),
-        })
-        .with(Viewshed {
-            visible_tiles: Vec::new(),
-            range: 8,
-            dirty: true,
-        })
-        .build();
+    let player_entity = spawn_player(&mut gs.ecs, player_x, player_y);
     gs.ecs.insert(player_entity);
     gs.ecs.insert(rltk::Point::new(player_x, player_y));
     gs.ecs.insert(RunState::PreRun);
