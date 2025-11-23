@@ -1,4 +1,4 @@
-use crate::{CombatStats, RunState, Viewshed};
+use crate::{CombatStats, RunState, Viewshed, WantsToMelee};
 
 use super::{Map, Player, Position, State};
 use rltk::{Point, Rltk, VirtualKeyCode, console};
@@ -9,18 +9,27 @@ pub fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) {
     let mut players = ecs.write_storage::<Player>();
     let mut viewsheds = ecs.write_storage::<Viewshed>();
     let combat_stats = ecs.read_storage::<CombatStats>();
+    let entities = ecs.entities();
+    let mut wants_to_melee = ecs.write_storage::<WantsToMelee>();
+
     let map = ecs.fetch::<Map>();
-    for (pos, _player, viewshed) in (&mut positions, &mut players, &mut viewsheds).join() {
+    for (entity, pos, _player, viewshed) in
+        (&entities, &mut positions, &mut players, &mut viewsheds).join()
+    {
         let destination_idx = map.xy_idx(pos.x + delta_x, pos.y + delta_y);
 
         for potential_target in map.tile_content[destination_idx].iter() {
             let target = combat_stats.get(*potential_target);
-            match target {
-                None => {}
-                Some(t) => {
-                    console::log(&format!("Format Hell's Heart, I stab at thee."));
-                    return
-                }
+            if let Some(_target) = target {
+                wants_to_melee
+                    .insert(
+                        entity,
+                        WantsToMelee {
+                            target: *potential_target,
+                        },
+                    )
+                    .expect("Add target failed");
+                return;
             }
         }
 
@@ -54,8 +63,8 @@ pub fn player_input(gs: &mut State, ctx: &mut Rltk) -> RunState {
                 try_move_player(0, 1, &mut gs.ecs)
             }
             // Diagonals
-            VirtualKeyCode::Numpad9 | VirtualKeyCode::Y => try_move_player(1, -1, &mut gs.ecs),
-            VirtualKeyCode::Numpad7 | VirtualKeyCode::U => try_move_player(-1, -1, &mut gs.ecs),
+            VirtualKeyCode::Numpad9 | VirtualKeyCode::U => try_move_player(1, -1, &mut gs.ecs),
+            VirtualKeyCode::Numpad7 | VirtualKeyCode::Y => try_move_player(-1, -1, &mut gs.ecs),
             VirtualKeyCode::Numpad3 | VirtualKeyCode::N => try_move_player(1, 1, &mut gs.ecs),
             VirtualKeyCode::Numpad1 | VirtualKeyCode::B => try_move_player(-1, 1, &mut gs.ecs),
             _ => return RunState::Paused,
