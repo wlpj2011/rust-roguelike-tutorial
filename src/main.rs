@@ -24,13 +24,14 @@ pub use damage_system::*;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum RunState {
-    Paused,
-    Running,
+    PreRun,
+    AwaitingInput,
+    PlayerTurn,
+    MonsterTurn,
 }
 
 pub struct State {
     pub ecs: World,
-    pub runstate: RunState,
 }
 
 impl State {
@@ -53,14 +54,34 @@ impl GameState for State {
     fn tick(&mut self, ctx: &mut Rltk) {
         ctx.cls();
 
-        if self.runstate == RunState::Running {
-            self.run_systems();
-            damage_system::delete_the_dead(&mut self.ecs);
-            self.runstate = RunState::Paused;
-        } else {
-            self.runstate = player_input(self, ctx);
+        let mut newrunstate;
+        {
+            let runstate = self.ecs.fetch::<RunState>();
+            newrunstate = *runstate;
         }
 
+        match newrunstate {
+            RunState::PreRun => {
+                self.run_systems();
+                newrunstate = RunState::AwaitingInput;
+            },
+            RunState::AwaitingInput => {
+                newrunstate = player_input(self, ctx);
+            },
+            RunState::PlayerTurn => {
+                self.run_systems();
+                newrunstate = RunState::MonsterTurn;
+            },
+            RunState::MonsterTurn => {
+                self.run_systems();
+                newrunstate = RunState::AwaitingInput;
+            },
+        }
+        {
+            let mut runwriter = self.ecs.write_resource::<RunState>();
+            *runwriter = newrunstate;
+        }
+        damage_system::delete_the_dead(&mut self.ecs);
         draw_map(&self.ecs, ctx);
 
         let positions = self.ecs.read_storage::<Position>();
@@ -82,7 +103,6 @@ fn main() -> rltk::BError {
         .build()?;
     let mut gs = State {
         ecs: World::new(),
-        runstate: RunState::Running,
     };
 
     // Register all components defined with the ECS
@@ -181,7 +201,7 @@ fn main() -> rltk::BError {
         .build();
     gs.ecs.insert(player_entity);
     gs.ecs.insert(rltk::Point::new(player_x, player_y));
-    gs.ecs.insert(RunState::Running);
+    gs.ecs.insert(RunState::PreRun);
 
     // Run main loop
     rltk::main_loop(context, gs)
