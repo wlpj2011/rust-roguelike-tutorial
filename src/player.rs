@@ -1,7 +1,6 @@
 use super::{Map, Player, Position, State};
 use crate::{
-    CombatStats, Item, RunState, Viewshed, WantsToMelee, WantsToPickupItem,
-    gamelog::GameLog,
+    CombatStats, Item, RunState, Viewshed, WantsToMelee, WantsToPickupItem, gamelog::GameLog,
 };
 use rltk::{Point, Rltk, VirtualKeyCode};
 use specs::prelude::*;
@@ -70,6 +69,7 @@ pub fn player_input(gs: &mut State, ctx: &mut Rltk) -> RunState {
             VirtualKeyCode::Numpad3 | VirtualKeyCode::N => try_move_player(1, 1, &mut gs.ecs),
             VirtualKeyCode::Numpad1 | VirtualKeyCode::B => try_move_player(-1, 1, &mut gs.ecs),
             VirtualKeyCode::G => get_item(&mut gs.ecs),
+            VirtualKeyCode::I => return RunState::ShowInventory,
             _ => return RunState::AwaitingInput,
         },
     }
