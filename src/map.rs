@@ -2,7 +2,7 @@ use crate::{Player, Viewshed};
 
 use super::Rect;
 use rltk::{Algorithm2D, BaseMap, Point, RGB, RandomNumberGenerator, Rltk};
-use specs::{Join, World, WorldExt};
+use specs::{Entity, Join, World, WorldExt};
 use std::cmp::{max, min};
 
 #[derive(PartialEq, Copy, Clone)]
@@ -20,6 +20,7 @@ pub struct Map {
     pub revealed_tiles: Vec<bool>,
     pub visible_tiles: Vec<bool>,
     pub blocked_tiles: Vec<bool>,
+    pub tile_content: Vec<Vec<Entity>>,
 }
 
 impl Map {
@@ -68,6 +69,12 @@ impl Map {
         }
     }
 
+    pub fn clear_content_index(&mut self) {
+        for content in self.tile_content.iter_mut() {
+            content.clear();
+        }
+    }
+
     /// Makes a map with solid boundaries and 400 randomly placed walls. No guarantees that it won't
     /// look awful.
     pub fn new_map_scatter() -> Map {
@@ -79,6 +86,7 @@ impl Map {
             revealed_tiles: vec![false; 80 * 50],
             visible_tiles: vec![false; 80 * 50],
             blocked_tiles: vec![false; 80 * 50],
+            tile_content: vec![Vec::new(); 80 * 50],
         };
 
         // Make the boundaries walls
@@ -121,6 +129,7 @@ impl Map {
             revealed_tiles: vec![false; 80 * 50],
             visible_tiles: vec![false; 80 * 50],
             blocked_tiles: vec![false; 80 * 50],
+            tile_content: vec![Vec::new(); 80 * 50],
         };
 
         const MAX_ROOMS: i32 = 30;
