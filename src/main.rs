@@ -21,6 +21,9 @@ mod melee_combat_system;
 pub use melee_combat_system::*;
 mod damage_system;
 pub use damage_system::*;
+mod gui;
+pub use gui::*;
+mod gamelog;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum RunState {
@@ -64,18 +67,18 @@ impl GameState for State {
             RunState::PreRun => {
                 self.run_systems();
                 newrunstate = RunState::AwaitingInput;
-            },
+            }
             RunState::AwaitingInput => {
                 newrunstate = player_input(self, ctx);
-            },
+            }
             RunState::PlayerTurn => {
                 self.run_systems();
                 newrunstate = RunState::MonsterTurn;
-            },
+            }
             RunState::MonsterTurn => {
                 self.run_systems();
                 newrunstate = RunState::AwaitingInput;
-            },
+            }
         }
         {
             let mut runwriter = self.ecs.write_resource::<RunState>();
@@ -93,6 +96,7 @@ impl GameState for State {
                 ctx.set(pos.x, pos.y, render.fg, render.bg, render.glyph);
             }
         }
+        gui::draw_ui(&self.ecs, ctx);
     }
 }
 
@@ -101,9 +105,7 @@ fn main() -> rltk::BError {
     let context = RltkBuilder::simple80x50()
         .with_title("Roguelike Tutorial")
         .build()?;
-    let mut gs = State {
-        ecs: World::new(),
-    };
+    let mut gs = State { ecs: World::new() };
 
     // Register all components defined with the ECS
     gs.ecs.register::<Position>();
@@ -202,6 +204,9 @@ fn main() -> rltk::BError {
     gs.ecs.insert(player_entity);
     gs.ecs.insert(rltk::Point::new(player_x, player_y));
     gs.ecs.insert(RunState::PreRun);
+    gs.ecs.insert(gamelog::GameLog {
+        entries: vec!["Welcome to the Dungeon".to_string()],
+    });
 
     // Run main loop
     rltk::main_loop(context, gs)
