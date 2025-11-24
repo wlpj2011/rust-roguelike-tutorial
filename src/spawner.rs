@@ -1,3 +1,5 @@
+use crate::AreaOfEffect;
+
 use super::{
     BlocksTile, CombatStats, Consumable, InflictsDamage, Item, MAPWIDTH, Monster, Name, Player,
     Position, ProvidesHealing, Ranged, Rect, Renderable, Viewshed,
@@ -102,6 +104,7 @@ pub fn random_item(ecs: &mut World, x: i32, y: i32) {
     }
     match roll {
         1 => health_potion(ecs, x, y),
+        2 => fireball_scroll(ecs, x, y),
         _ => magic_missile_scroll(ecs, x, y),
     }
 }
@@ -156,6 +159,26 @@ fn health_potion(ecs: &mut World, x: i32, y: i32) {
         .with(Item {})
         .with(Consumable {})
         .with(ProvidesHealing { heal_amount: 8 })
+        .build();
+}
+
+fn fireball_scroll(ecs: &mut World, x: i32, y: i32) {
+    ecs.create_entity()
+        .with(Position { x, y })
+        .with(Renderable {
+            glyph: rltk::to_cp437(')'),
+            fg: RGB::named(rltk::ORANGE),
+            bg: RGB::named(rltk::BLACK),
+            render_order: 2,
+        })
+        .with(Name {
+            name: "Fireball Scroll".to_string(),
+        })
+        .with(Item {})
+        .with(Consumable {})
+        .with(Ranged { range: 6 })
+        .with(InflictsDamage { damage: 20 })
+        .with(AreaOfEffect { radius: 3 })
         .build();
 }
 
