@@ -12,6 +12,7 @@ pub const MAPCOUNT: usize = MAPWIDTH * MAPHEIGHT;
 pub enum TileType {
     Wall,
     Floor,
+    DownStairs,
 }
 
 #[derive(Default, Serialize, Deserialize, Clone)]
@@ -23,6 +24,8 @@ pub struct Map {
     pub revealed_tiles: Vec<bool>,
     pub visible_tiles: Vec<bool>,
     pub blocked_tiles: Vec<bool>,
+    pub depth: i32,
+
     #[serde(skip_serializing)]
     #[serde(skip_deserializing)]
     pub tile_content: Vec<Vec<Entity>>,
@@ -82,7 +85,7 @@ impl Map {
 
     /// Makes a map with solid boundaries and 400 randomly placed walls. No guarantees that it won't
     /// look awful.
-    pub fn new_map_scatter() -> Map {
+    pub fn new_map_scatter(new_depth: i32) -> Map {
         let mut map = Map {
             tiles: vec![TileType::Floor; MAPCOUNT],
             rooms: Vec::new(),
@@ -91,6 +94,7 @@ impl Map {
             revealed_tiles: vec![false; MAPCOUNT],
             visible_tiles: vec![false; MAPCOUNT],
             blocked_tiles: vec![false; MAPCOUNT],
+            depth: new_depth,
             tile_content: vec![Vec::new(); MAPCOUNT],
         };
 
@@ -125,7 +129,7 @@ impl Map {
     }
 
     /// Makes a map by carving out up to MAX_ROOMS non-intersecting rooms and connecting them by corridors.
-    pub fn new_map_rooms_and_corridors() -> Map {
+    pub fn new_map_rooms_and_corridors(new_depth: i32) -> Map {
         let mut map = Map {
             tiles: vec![TileType::Wall; MAPCOUNT],
             rooms: Vec::new(),
@@ -134,6 +138,7 @@ impl Map {
             revealed_tiles: vec![false; MAPCOUNT],
             visible_tiles: vec![false; MAPCOUNT],
             blocked_tiles: vec![false; MAPCOUNT],
+            depth: new_depth,
             tile_content: vec![Vec::new(); MAPCOUNT],
         };
 
@@ -173,6 +178,10 @@ impl Map {
                 map.rooms.push(new_room);
             }
         }
+
+        let stairs_position = map.rooms[map.rooms.len() - 1].center();
+        let stairs_idx = map.xy_idx(stairs_position.0, stairs_position.1);
+        map.tiles[stairs_idx] = TileType::DownStairs;
 
         map
     }
@@ -251,6 +260,10 @@ pub fn draw_map(ecs: &World, ctx: &mut Rltk) {
                     TileType::Wall => {
                         fg = RGB::from_f32(0.0, 1.0, 0.0);
                         glyph = rltk::to_cp437('#');
+                    }
+                    TileType::DownStairs => {
+                        fg = RGB::from_f32(0.0, 1.0, 1.0);
+                        glyph = rltk::to_cp437('>');
                     }
                 }
                 if !map.visible_tiles[idx] {
