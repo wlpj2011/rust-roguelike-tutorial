@@ -1,6 +1,6 @@
 use super::{
-    CombatStats, Item, Map, Player, Position, RunState, State, TileType, Viewshed, WantsToMelee,
-    WantsToPickupItem, gamelog::GameLog, Monster
+    CombatStats, Item, Map, Monster, Player, Position, RunState, State, TileType, Viewshed,
+    WantsToMelee, WantsToPickupItem, gamelog::GameLog,
 };
 use rltk::{Point, Rltk, VirtualKeyCode};
 use specs::prelude::*;
@@ -149,7 +149,9 @@ fn skip_turn(ecs: &mut World) -> RunState {
             let mob = monsters.get(*entity_id);
             match mob {
                 None => {}
-                Some(_) => { can_heal = false; }
+                Some(_) => {
+                    can_heal = false;
+                }
             }
         }
     }
@@ -162,4 +164,3 @@ fn skip_turn(ecs: &mut World) -> RunState {
 
     RunState::PlayerTurn
 }
-

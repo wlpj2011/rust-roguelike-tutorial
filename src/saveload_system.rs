@@ -1,4 +1,5 @@
 use super::components::*;
+#[allow(deprecated)]
 use specs::error::NoError;
 use specs::prelude::*;
 use specs::saveload::{
@@ -22,8 +23,8 @@ macro_rules! serialize_individually {
     };
 }
 
+#[allow(deprecated)]
 pub fn save_game(ecs: &mut World) {
-    println!("Saving Game");
     // Create helper
     let mapcopy = ecs.get_mut::<super::map::Map>().unwrap().clone();
     let savehelper = ecs
@@ -93,8 +94,8 @@ macro_rules! deserialize_individually {
     };
 }
 
+#[allow(deprecated)]
 pub fn load_game(ecs: &mut World) {
-    println!("Loading Game");
     {
         // Delete everything
         let mut to_delete = Vec::new();

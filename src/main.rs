@@ -30,6 +30,8 @@ pub use gui::*;
 mod gamelog;
 mod saveload_system;
 pub use saveload_system::*;
+mod random_table;
+pub use random_table::*;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum RunState {
