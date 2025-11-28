@@ -1,6 +1,6 @@
 use super::{
-    CombatStats, DefenseBonus, Equipped, MeleePowerBonus, Name, SufferDamage, WantsToMelee,
-    gamelog::GameLog,
+    CombatStats, DefenseBonus, Equipped, MeleePowerBonus, Name, Position, SufferDamage,
+    WantsToMelee, gamelog::GameLog, particle_system::ParticleBuilder,
 };
 use specs::prelude::*;
 
@@ -17,6 +17,8 @@ impl<'a> System<'a> for MeleeCombatSystem {
         ReadStorage<'a, MeleePowerBonus>,
         ReadStorage<'a, DefenseBonus>,
         ReadStorage<'a, Equipped>,
+        WriteExpect<'a, ParticleBuilder>,
+        ReadStorage<'a, Position>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
@@ -30,6 +32,8 @@ impl<'a> System<'a> for MeleeCombatSystem {
             melee_power_bonus,
             defense_bonus,
             equipped,
+            mut particle_builder,
+            positions,
         ) = data;
         for (entity, wants_melee, name, stats) in
             (&entities, &wants_melee, &names, &combat_stats).join()
@@ -55,6 +59,19 @@ impl<'a> System<'a> for MeleeCombatSystem {
                         }
                     }
                     let target_name = names.get(wants_melee.target).unwrap();
+
+                    let pos = positions.get(wants_melee.target);
+                    if let Some(pos) = pos {
+                        particle_builder.request(
+                            pos.x,
+                            pos.y,
+                            rltk::RGB::named(rltk::ORANGE),
+                            rltk::RGB::named(rltk::BLACK),
+                            rltk::to_cp437('‼'),
+                            200.0,
+                        );
+                    }
+
                     let damage = i32::max(
                         0,
                         (stats.power + offensive_bonus) - (target_stats.defense + defensive_bonus),

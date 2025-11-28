@@ -70,7 +70,8 @@ pub fn save_game(ecs: &mut World) {
             SerializationHelper,
             Equippable,
             MeleePowerBonus,
-            DefenseBonus
+            DefenseBonus,
+            ParticleLifetime
         );
     }
 
@@ -148,7 +149,8 @@ pub fn load_game(ecs: &mut World) {
             SerializationHelper,
             Equippable,
             MeleePowerBonus,
-            DefenseBonus
+            DefenseBonus,
+            ParticleLifetime
         );
     }
 
