@@ -3,6 +3,7 @@ use rltk::{Algorithm2D, BaseMap, Point, RGB, RandomNumberGenerator, Rltk};
 use serde::{Deserialize, Serialize};
 use specs::{Entity, Join, World, WorldExt};
 use std::cmp::{max, min};
+use std::collections::{HashMap, HashSet};
 
 pub const MAPWIDTH: usize = 80;
 pub const MAPHEIGHT: usize = 43;
@@ -25,6 +26,7 @@ pub struct Map {
     pub visible_tiles: Vec<bool>,
     pub blocked_tiles: Vec<bool>,
     pub depth: i32,
+    pub bloodstains: HashSet<usize>,
 
     #[serde(skip_serializing)]
     #[serde(skip_deserializing)]
@@ -95,6 +97,7 @@ impl Map {
             visible_tiles: vec![false; MAPCOUNT],
             blocked_tiles: vec![false; MAPCOUNT],
             depth: new_depth,
+            bloodstains: HashSet::new(),
             tile_content: vec![Vec::new(); MAPCOUNT],
         };
 
@@ -139,6 +142,7 @@ impl Map {
             visible_tiles: vec![false; MAPCOUNT],
             blocked_tiles: vec![false; MAPCOUNT],
             depth: new_depth,
+            bloodstains: HashSet::new(),
             tile_content: vec![Vec::new(); MAPCOUNT],
         };
 
@@ -252,6 +256,8 @@ pub fn draw_map(ecs: &World, ctx: &mut Rltk) {
             if map.revealed_tiles[idx] {
                 let glyph;
                 let mut fg;
+
+                let mut bg = RGB::from_f32(0., 0., 0.);
                 match tile {
                     TileType::Floor => {
                         glyph = rltk::to_cp437('.');
@@ -266,10 +272,14 @@ pub fn draw_map(ecs: &World, ctx: &mut Rltk) {
                         glyph = rltk::to_cp437('>');
                     }
                 }
+                if map.bloodstains.contains(&idx) {
+                    bg = RGB::from_f32(0.75, 0., 0.);
+                }
                 if !map.visible_tiles[idx] {
                     fg = fg.to_greyscale();
+                    bg = RGB::from_f32(0., 0., 0.); // Don't show stains out of visual range
                 }
-                ctx.set(x, y, fg, RGB::from_f32(0., 0., 0.), glyph);
+                ctx.set(x, y, fg, bg, glyph);
             }
             // Move the coordinates
             x += 1;
