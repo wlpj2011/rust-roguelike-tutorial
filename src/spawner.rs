@@ -1,3 +1,5 @@
+use crate::HungerClock;
+
 use super::{
     AreaOfEffect, BlocksTile, CombatStats, Confusion, Consumable, DefenseBonus, EquipmentSlot,
     Equippable, InflictsDamage, Item, MAPWIDTH, MeleePowerBonus, Monster, Name, Player, Position,
@@ -84,6 +86,10 @@ pub fn spawn_player(ecs: &mut World, player_x: i32, player_y: i32) -> Entity {
             visible_tiles: Vec::new(),
             range: 8,
             dirty: true,
+        })
+        .with(HungerClock {
+            state: crate::HungerState::WellFed,
+            duration: 20,
         })
         .marked::<SimpleMarker<SerializeMe>>()
         .build()

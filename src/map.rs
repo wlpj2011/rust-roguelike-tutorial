@@ -3,7 +3,7 @@ use rltk::{Algorithm2D, BaseMap, Point, RGB, RandomNumberGenerator, Rltk};
 use serde::{Deserialize, Serialize};
 use specs::{Entity, Join, World, WorldExt};
 use std::cmp::{max, min};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 pub const MAPWIDTH: usize = 80;
 pub const MAPHEIGHT: usize = 43;
