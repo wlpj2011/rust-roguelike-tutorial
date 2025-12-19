@@ -183,3 +183,6 @@ pub struct HungerClock {
     pub state: HungerState,
     pub duration: i32,
 }
+
+#[derive(Component, Serialize, Deserialize, Clone)]
+pub struct ProvidesFood {}

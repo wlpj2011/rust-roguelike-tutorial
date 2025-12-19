@@ -72,7 +72,8 @@ pub fn save_game(ecs: &mut World) {
             MeleePowerBonus,
             DefenseBonus,
             ParticleLifetime,
-            HungerClock
+            HungerClock,
+            ProvidesFood
         );
     }
 
@@ -152,7 +153,8 @@ pub fn load_game(ecs: &mut World) {
             MeleePowerBonus,
             DefenseBonus,
             ParticleLifetime,
-            HungerClock
+            HungerClock,
+            ProvidesFood
         );
     }
 

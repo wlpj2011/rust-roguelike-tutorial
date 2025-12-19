@@ -1,9 +1,8 @@
-use crate::HungerClock;
-
 use super::{
     AreaOfEffect, BlocksTile, CombatStats, Confusion, Consumable, DefenseBonus, EquipmentSlot,
-    Equippable, InflictsDamage, Item, MAPWIDTH, MeleePowerBonus, Monster, Name, Player, Position,
-    ProvidesHealing, RandomTable, Ranged, Rect, Renderable, SerializeMe, Viewshed,
+    Equippable, HungerClock, InflictsDamage, Item, MAPWIDTH, MeleePowerBonus, Monster, Name,
+    Player, Position, ProvidesFood, ProvidesHealing, RandomTable, Ranged, Rect, Renderable,
+    SerializeMe, Viewshed,
 };
 use rltk::{RGB, RandomNumberGenerator};
 use specs::prelude::*;
@@ -55,6 +54,7 @@ pub fn spawn_room(ecs: &mut World, room: &Rect, map_depth: i32) {
             "Shield" => shield(ecs, x, y),
             "Longsword" => longsword(ecs, x, y),
             "Tower Shield" => tower_shield(ecs, x, y),
+            "Rations" => rations(ecs, x, y),
             _ => {}
         }
     }
@@ -107,6 +107,7 @@ fn room_table(map_depth: i32) -> RandomTable {
         .add("Shield", 3)
         .add("Longsword", map_depth - 1)
         .add("Tower Shield", map_depth - 1)
+        .add("Rations", 10)
 }
 
 pub fn random_monster(ecs: &mut World, x: i32, y: i32) {
@@ -331,6 +332,25 @@ fn tower_shield(ecs: &mut World, x: i32, y: i32) {
             slot: EquipmentSlot::Shield,
         })
         .with(DefenseBonus { defense: 3 })
+        .marked::<SimpleMarker<SerializeMe>>()
+        .build();
+}
+
+fn rations(ecs: &mut World, x: i32, y: i32) {
+    ecs.create_entity()
+        .with(Position { x, y })
+        .with(Renderable {
+            glyph: rltk::to_cp437('%'),
+            fg: RGB::named(rltk::GREEN),
+            bg: RGB::named(rltk::BLACK),
+            render_order: 2,
+        })
+        .with(Name {
+            name: "Rations".to_string(),
+        })
+        .with(Item {})
+        .with(ProvidesFood {})
+        .with(Consumable {})
         .marked::<SimpleMarker<SerializeMe>>()
         .build();
 }
