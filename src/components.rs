@@ -165,12 +165,12 @@ pub struct WantsToRemoveItem {
     pub item: Entity,
 }
 
-#[derive(Component, Serialize, Deserialize, Clone)]
+#[derive(Component, Debug, Serialize, Deserialize, Clone)]
 pub struct ParticleLifetime {
     pub lifetime_ms: f32,
 }
 
-#[derive(Serialize, Deserialize, Copy, Clone, PartialEq)]
+#[derive(Serialize, Debug, Deserialize, Copy, Clone, PartialEq)]
 pub enum HungerState {
     WellFed,
     Normal,
@@ -178,11 +178,14 @@ pub enum HungerState {
     Starving,
 }
 
-#[derive(Component, Serialize, Deserialize, Clone)]
+#[derive(Component, Debug, Serialize, Deserialize, Clone)]
 pub struct HungerClock {
     pub state: HungerState,
     pub duration: i32,
 }
 
-#[derive(Component, Serialize, Deserialize, Clone)]
+#[derive(Component, Debug, Serialize, Deserialize, Clone)]
 pub struct ProvidesFood {}
+
+#[derive(Component, Debug, Serialize, Deserialize, Clone)]
+pub struct MagicMapper {}
