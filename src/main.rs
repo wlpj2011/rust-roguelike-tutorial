@@ -38,6 +38,8 @@ mod hunger_system;
 pub use hunger_system::*;
 mod trigger_system;
 pub use trigger_system::*;
+pub mod map_builders;
+
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum RunState {
