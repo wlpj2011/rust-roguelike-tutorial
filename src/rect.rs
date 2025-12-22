@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Serialize, Deserialize, Clone)]
+#[derive(Default, Serialize, Deserialize, Copy, Clone)]
 pub struct Rect {
     pub x1: i32,
     pub y1: i32,

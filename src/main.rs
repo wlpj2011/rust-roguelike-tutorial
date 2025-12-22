@@ -527,7 +527,7 @@ fn main() -> rltk::BError {
     // Add player
     let player_entity = spawn_player(&mut gs.ecs, 0, 0);
     gs.ecs.insert(player_entity);
-     // Set initial game state to map generation
+    // Set initial game state to map generation
     gs.ecs.insert(RunState::MapGeneration);
     gs.ecs.insert(gamelog::GameLog {
         entries: vec!["Welcome to the Dungeon".to_string()],
