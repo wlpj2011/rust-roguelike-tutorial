@@ -126,49 +126,45 @@ impl Algorithm2D for Map {
     }
 }
 
-pub fn draw_map(ecs: &World, ctx: &mut Rltk) {
-    let mut viewsheds = ecs.write_storage::<Viewshed>();
-    let mut players = ecs.write_storage::<Player>();
-    let map = ecs.fetch::<Map>();
+pub fn draw_map(map: &Map, ctx: &mut Rltk) {
+    let mut y = 0;
+    let mut x = 0;
+    for (idx, tile) in map.tiles.iter().enumerate() {
+        // Render a tile depending upon the tile type
 
-    for (_player, _viewshed) in (&mut players, &mut viewsheds).join() {
-        let mut y = 0;
-        let mut x = 0;
-        for (idx, tile) in map.tiles.iter().enumerate() {
-            if map.revealed_tiles[idx] {
-                let glyph;
-                let mut fg;
+        if map.revealed_tiles[idx] {
+            let glyph;
+            let mut fg;
+            let mut bg = RGB::from_f32(0., 0., 0.);
+            match tile {
+                TileType::Floor => {
+                    glyph = rltk::to_cp437('.');
+                    fg = RGB::from_f32(0.0, 0.5, 0.5);
+                }
+                TileType::Wall => {
+                    glyph = wall_glyph(&*map, x, y);
+                    fg = RGB::from_f32(0., 1.0, 0.);
+                }
+                TileType::DownStairs => {
+                    glyph = rltk::to_cp437('>');
+                    fg = RGB::from_f32(0., 1.0, 1.0);
+                }
+            }
+            if map.bloodstains.contains(&idx) {
+                bg = RGB::from_f32(0.75, 0., 0.);
+            }
+            if !map.visible_tiles[idx] {
+                fg = fg.to_greyscale();
+                bg = RGB::from_f32(0., 0., 0.); // Don't show stains out of visual range
+            }
+            ctx.set(x, y, fg, bg, glyph);
+        }
 
-                let mut bg = RGB::from_f32(0., 0., 0.);
-                match tile {
-                    TileType::Floor => {
-                        glyph = rltk::to_cp437('.');
-                        fg = RGB::from_f32(0.0, 0.5, 0.5);
-                    }
-                    TileType::Wall => {
-                        glyph = wall_glyph(&*map, x, y);
-                        fg = RGB::from_f32(0., 1.0, 0.);
-                    }
-                    TileType::DownStairs => {
-                        fg = RGB::from_f32(0.0, 1.0, 1.0);
-                        glyph = rltk::to_cp437('>');
-                    }
-                }
-                if map.bloodstains.contains(&idx) {
-                    bg = RGB::from_f32(0.75, 0., 0.);
-                }
-                if !map.visible_tiles[idx] {
-                    fg = fg.to_greyscale();
-                    bg = RGB::from_f32(0., 0., 0.); // Don't show stains out of visual range
-                }
-                ctx.set(x, y, fg, bg, glyph);
-            }
-            // Move the coordinates
-            x += 1;
-            if x > 79 {
-                x = 0;
-                y += 1;
-            }
+        // Move the coordinates
+        x += 1;
+        if x > MAPWIDTH as i32 - 1 {
+            x = 0;
+            y += 1;
         }
     }
 }

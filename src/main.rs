@@ -2,6 +2,8 @@ use rltk::{GameState, Point, Rltk};
 use specs::prelude::*;
 use specs::saveload::{SimpleMarker, SimpleMarkerAllocator};
 
+const SHOW_MAPGEN_VISUALIZER: bool = true;
+
 // Load all modules
 mod components;
 pub use components::*;
@@ -62,10 +64,15 @@ pub enum RunState {
     MagicMapReveal {
         row: i32,
     },
+    MapGeneration,
 }
 
 pub struct State {
     pub ecs: World,
+    mapgen_next_state: Option<RunState>,
+    mapgen_history: Vec<Map>,
+    mapgen_index: usize,
+    mapgen_timer: f32,
 }
 
 impl State {
@@ -112,7 +119,7 @@ impl GameState for State {
         match newrunstate {
             RunState::MainMenu { .. } => {}
             _ => {
-                draw_map(&self.ecs, ctx);
+                draw_map(&self.ecs.fetch::<Map>(), ctx);
                 {
                     let positions = self.ecs.read_storage::<Position>();
                     let renderables = self.ecs.read_storage::<Renderable>();
@@ -301,6 +308,22 @@ impl GameState for State {
                     newrunstate = RunState::MagicMapReveal { row: row + 1 };
                 }
             }
+            RunState::MapGeneration => {
+                if !SHOW_MAPGEN_VISUALIZER {
+                    newrunstate = self.mapgen_next_state.unwrap();
+                }
+                ctx.cls();
+                draw_map(&self.mapgen_history[self.mapgen_index], ctx);
+
+                self.mapgen_timer += ctx.frame_time_ms;
+                if self.mapgen_timer > 300.0 {
+                    self.mapgen_timer = 0.0;
+                    self.mapgen_index += 1;
+                    if self.mapgen_index >= self.mapgen_history.len() {
+                        newrunstate = self.mapgen_next_state.unwrap();
+                    }
+                }
+            }
         }
         {
             let mut runwriter = self.ecs.write_resource::<RunState>();
@@ -312,8 +335,12 @@ impl GameState for State {
 
 impl State {
     fn generate_world_map(&mut self, new_depth: i32) {
+        self.mapgen_index = 0;
+        self.mapgen_timer = 0.0;
+        self.mapgen_history.clear();
         let mut builder = map_builders::random_builder(new_depth);
         builder.build_map();
+        self.mapgen_history = builder.get_snapshot_history();
         let player_start;
         {
             let mut worldmap_resource = self.ecs.write_resource::<Map>();
@@ -343,6 +370,7 @@ impl State {
             vs.dirty = true;
         }
     }
+
     fn entities_to_remove_on_level_change(&mut self) -> Vec<Entity> {
         let entities = self.ecs.entities();
         let player = self.ecs.read_storage::<Player>();
@@ -442,7 +470,15 @@ fn main() -> rltk::BError {
         .build()?;
     context.with_post_scanlines(true);
 
-    let mut gs = State { ecs: World::new() };
+    let mut gs = State {
+        ecs: World::new(),
+        mapgen_next_state: Some(RunState::MainMenu {
+            menu_selection: gui::MainMenuSelection::NewGame,
+        }),
+        mapgen_index: 0,
+        mapgen_history: Vec::new(),
+        mapgen_timer: 0.0,
+    };
 
     // Register all components defined with the ECS
     gs.ecs.register::<Position>();
@@ -491,10 +527,8 @@ fn main() -> rltk::BError {
     // Add player
     let player_entity = spawn_player(&mut gs.ecs, 0, 0);
     gs.ecs.insert(player_entity);
-    gs.ecs.insert(RunState::MainMenu {
-        menu_selection: gui::MainMenuSelection::NewGame,
-    });
-    gs.ecs.insert(RunState::PreRun);
+     // Set initial game state to map generation
+    gs.ecs.insert(RunState::MapGeneration);
     gs.ecs.insert(gamelog::GameLog {
         entries: vec!["Welcome to the Dungeon".to_string()],
     });
