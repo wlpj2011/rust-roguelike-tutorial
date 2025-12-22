@@ -13,13 +13,13 @@ pub struct SimpleMapBuilder {
 }
 
 impl MapBuilder for SimpleMapBuilder {
-    fn build_map(&mut self, new_depth: i32) {
+    fn build_map(&mut self) {
         self.rooms_and_corridors();
     }
 
-    fn spawn_entities(&mut self, ecs: &mut World, _new_depth: i32) {
+    fn spawn_entities(&mut self, ecs: &mut World) {
         for room in self.rooms.iter().skip(1) {
-            spawner::spawn_room(ecs, room, 1);
+            spawner::spawn_room(ecs, room, self.depth);
         }
     }
 
@@ -27,7 +27,7 @@ impl MapBuilder for SimpleMapBuilder {
         self.map.clone()
     }
 
-    fn get_position(&mut self) -> Position {
+    fn get_starting_position(&mut self) -> Position {
         self.starting_position.clone()
     }
 }
