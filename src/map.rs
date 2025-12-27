@@ -1,6 +1,6 @@
 use rltk::{Algorithm2D, BaseMap, Point, RGB, Rltk};
 use serde::{Deserialize, Serialize};
-use specs::{Entity};
+use specs::Entity;
 use std::collections::HashSet;
 
 pub const MAPWIDTH: usize = 80;
