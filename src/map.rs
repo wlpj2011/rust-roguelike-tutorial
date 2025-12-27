@@ -1,8 +1,6 @@
-use super::{Player, Rect, Viewshed};
-use rltk::{Algorithm2D, BaseMap, Point, RGB, RandomNumberGenerator, Rltk};
+use rltk::{Algorithm2D, BaseMap, Point, RGB, Rltk};
 use serde::{Deserialize, Serialize};
-use specs::{Entity, Join, World, WorldExt};
-use std::cmp::{max, min};
+use specs::{Entity};
 use std::collections::HashSet;
 
 pub const MAPWIDTH: usize = 80;

@@ -5,6 +5,8 @@ mod bsp_dungeon;
 use bsp_dungeon::BspDungeonBuilder;
 mod bsp_interior;
 use bsp_interior::BspInteriorBuilder;
+mod cellular_automata;
+use cellular_automata::CellularAutomataBuilder;
 mod common;
 use common::*;
 use specs::prelude::*;
@@ -24,6 +26,7 @@ pub fn random_builder(new_depth: i32) -> Box<dyn MapBuilder> {
     match builder {
         1 => Box::new(BspDungeonBuilder::new(new_depth)),
         2 => Box::new(BspInteriorBuilder::new(new_depth)),
+        3 => Box::new(CellularAutomataBuilder::new(new_depth)),
         _ => Box::new(SimpleMapBuilder::new(new_depth)),
     }
 }

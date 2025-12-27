@@ -4,7 +4,6 @@ use super::{
     Map, MapBuilder, Position, Rect, TileType, apply_horizontal_tunnel, apply_room_to_map,
     apply_vertical_tunnel, spawner,
 };
-use rltk::RandomNumberGenerator;
 use specs::prelude::*;
 
 pub struct SimpleMapBuilder {
@@ -67,7 +66,7 @@ impl SimpleMapBuilder {
 
         let mut rng = rltk::RandomNumberGenerator::new();
 
-        for i in 0..MAX_ROOMS {
+        for _i in 0..MAX_ROOMS {
             let w = rng.range(MIN_SIZE, MAX_SIZE);
             let h = rng.range(MIN_SIZE, MAX_SIZE);
             let x = rng.roll_dice(1, self.map.width - w - 1) - 1;

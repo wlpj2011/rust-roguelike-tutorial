@@ -1,8 +1,6 @@
 use crate::SHOW_MAPGEN_VISUALIZER;
 
-use super::{
-    Map, MapBuilder, Position, Rect, TileType, spawner,
-};
+use super::{Map, MapBuilder, Position, Rect, TileType, spawner};
 use rltk::RandomNumberGenerator;
 use specs::prelude::*;
 
